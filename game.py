@@ -2,6 +2,8 @@
 
 
 import os.path
+import time
+
 import pygame as pg
 import sys
 import tkinter as tk
@@ -19,6 +21,7 @@ WIDTH2 = 64 # width of a barFPS = 60
 notes = []
 root = tk.Tk()
 root.withdraw()
+score = 0
 #
 # file_name = filedialog.askopenfilename(title="음악을 선택하세요", filetypes=(("wav 음악파일", "*.wav"), ("ogg 음악파일", "*.ogg")))
 file_name = '캐논변주곡.wav'
@@ -70,7 +73,11 @@ class Game:
         # self.aImage = pg.display.
         self.note_group = pg.sprite.Group
         self.note = pg.image.load("note.png")
-        self.note_circle = pg.image.load("note_circle.png")
+        self.perfect = pg.image.load("perfect.png")
+        self.grate = pg.image.load("great.png")
+        self.cool = pg.image.load("cool.png")
+        self.nope = pg.image.load("blank.png")
+        self.miss = pg.image.load("miss.png")
         self.circle = pygame.draw.rect(self.screen, self.rainbowColor(),[0 , 0, 20, 20], 20, 20, 20, 20)
         self.a = pg.image.load("A.png")
         self.s = pg.image.load("S.png")
@@ -100,6 +107,7 @@ class Game:
         num = int(num)
         h = abs(dct(wave_data[0][nframes - num:nframes - num + N]))
         h = [min(HEIGHT2, int(i ** (1 / 2.5) * HEIGHT2 / 100)) for i in h]
+        self.screen.blit(self.nope, (36, 220))
         self.draw_bars(h)
 
 
@@ -114,6 +122,7 @@ class Game:
                 self.visualizer(self.num)
                 self.screen.blit(self.info, (448 - 70, 768 - 108))
                 self.screen.blit(self.musicTitle, (20, 768 - 112))
+                self.screen.blit(self.score, (14, 14))
 
             pygame.display.flip()
 
@@ -143,8 +152,14 @@ class Game:
                 # self.note_group.add(self.note_circle)
                 if note_list[i][1]<=640:
                     notes.append(pygame.draw.rect(self.screen, self.rainbowColor(),[self.notes[1][i] + 20,note_list[i][1],20,20], 20,20,20,20))
-                    note_list[i][1] += 20
+                    note_list[i][1] += 19
+                    for i in notes:
+                        if(i.top >=627):
+                            self.nope = self.miss
+                            print(i)
+
     def run(self):
+        global score
         self.playing = True
         while self.playing:
             self.dt = self.clock.tick(60)
@@ -153,6 +168,7 @@ class Game:
             if(self.state == "main_game"):
                 self.info = self.basic_font.render(self.get_time(), True,(0,0,0))
                 self.musicTitle = self.title_font.render(no_ext_filename, True, (0, 0, 0))
+                self.score =  self.title_font.render("점수 " + str(score) + "총 노트" + str(self.num_notes), True, (0, 0, 0))
                 fpsclock.tick(FPS)
                 self.vis()
 
@@ -251,6 +267,7 @@ class Game:
         # catch all events here
         global isPause;
         global notes
+        global score
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.quit()
@@ -262,7 +279,20 @@ class Game:
                     self.screen.blit(self.note, (0, 0))
                     for i in notes:
                         if(self.a_rect.colliderect(i)):
-                            print("a 겹침 ㅇ")
+                            if abs(self.a_rect.top - i.top) < 10:
+                                self.nope = self.perfect
+                                score=  score+5
+                            elif abs(self.a_rect.top - i.top) <= 15:
+                                print("그레이트")
+                                self.nope = self.grate
+
+                                score = score+3
+                            else:
+                                print("오케이")
+                                self.nope = self.cool
+                                score = score+1
+                            notes.remove(i)
+                            print(abs(self.a_rect.top - i.top))
                     pg.display.flip()
                 if event.key == pg.K_s:
                     print("s")
@@ -270,7 +300,22 @@ class Game:
                     self.screen.blit(self.note,(64,0))
                     for i in notes:
                         if (self.s_rect.colliderect(i)):
-                            print("s 겹침 ㅇ")
+                            if abs(self.s_rect.top - i.top) < 10:
+                                self.nope = self.perfect
+                                print("퍼펙트")
+                                score = score + 5
+                            elif abs(self.s_rect.top - i.top) <= 15:
+                                print("그레이트")
+                                self.nope = self.grate
+                                score = score + 3
+                            else:
+                                print("오케이")
+                                self.nope = self.cool
+                                score = score + 1
+                            print(notes)
+                            notes.remove(i)
+                            print(notes)
+                            print(abs(self.s_rect.top - i.top))
                     pg.display.flip()
                 if event.key == pg.K_d:
                     print("d")
@@ -278,7 +323,21 @@ class Game:
                     self.screen.blit(self.note,(128,0))
                     for i in notes:
                         if (self.d_rect.colliderect(i)):
-                            print("d 겹침 ㅇ")
+                            if abs(self.d_rect.top - i.top) < 10:
+                                self.nope = self.perfect
+                                print("퍼펙트")
+                                score = score + 5
+                            elif abs(self.d_rect.top - i.top) <= 15:
+                                self.nope = self.grate
+                                print("그레이트")
+                                score = score + 3
+                            else:
+                                print("오케이")
+                                self.nope = self.cool
+                                score = score + 1
+                            notes.remove(i)
+                            print(notes)
+                            print(abs(self.d_rect.top - i.top))
                     pg.display.flip()
                 if event.key == pg.K_j:
                     print("j")
@@ -286,7 +345,22 @@ class Game:
                     self.screen.blit(self.note,(258,0))
                     for i in notes:
                         if (self.j_rect.colliderect(i)):
-                            print("j 겹침 ㅇ")
+                            if abs(self.j_rect.top - i.top) < 10:
+                                self.nope = self.perfect
+                                print("퍼펙트")
+
+                                score = score + 5
+                            elif abs(self.j_rect.top - i.top) <= 15:
+                                self.nope = self.grate
+                                print("그레이트")
+                                score = score + 3
+                            else:
+                                self.nope = self.cool
+                                print("오케이")
+                                score = score + 1
+                            notes.remove(i)
+                            print(notes)
+                            print(abs(self.j_rect.top - i.top))
                     pg.display.flip()
                 if event.key == pg.K_k:
                     print("k")
@@ -294,7 +368,20 @@ class Game:
                     self.screen.blit(self.note,(312,0))
                     for i in notes:
                         if (self.k_rect.colliderect(i)):
-                            print("k 겹침 ㅇ")
+                            if abs(self.k_rect.top - i.top) < 10:
+                                self.nope = self.perfect
+                                print("퍼펙트")
+                                score = score + 5
+                            elif abs(self.k_rect.top - i.top) <= 15:
+                                self.nope = self.grate
+                                score = score + 3
+                            else:
+                                print("오케이")
+                                self.nope = self.cool
+                                score = score + 1
+                            notes.remove(i)
+                            print(notes)
+                            print(abs(self.k_rect.top - i.top))
                     pg.display.flip()
                 if event.key == pg.K_l:
                     print("l")
@@ -302,7 +389,21 @@ class Game:
                     self.screen.blit(self.note,(380,0))
                     for i in notes:
                         if (self.l_rect.colliderect(i)):
-                            print("l 겹침 ㅇ")
+                            if abs(self.l_rect.top - i.top) < 10:
+                                self.nope = self.perfect
+                                print("퍼펙트")
+                                score = score + 5
+                            elif abs(self.l_rect.top - i.top) <= 15:
+                                self.nope = self.grate
+                                print("그레이트")
+                                score = score + 3
+                            else:
+                                self.nope = self.cool
+                                print("오케이")
+                                score = score + 1
+                            notes.remove(i)
+                            print(notes)
+                            print(abs(self.l_rect.top - i.top))
                     pg.display.flip()
                 if event.key == pg.K_SPACE:
                     print("space")
@@ -310,7 +411,21 @@ class Game:
                     self.screen.blit(self.note,(192,0))
                     for i in notes:
                         if (self.space_rect.colliderect(i)):
-                            print("space 겹침 ㅇ")
+                            if abs(self.space_rect.top - i.top) < 10:
+                                self.nope = self.perfect
+                                print("퍼펙트")
+                                score = score + 5
+                            elif abs(self.space_rect.top - i.top) <= 15:
+                                self.nope = self.grate
+                                print("그레이트")
+                                score = score + 3
+                            else:
+                                self.nope = self.cool
+                                print("오케이")
+                                score = score + 1
+                            notes.remove(i)
+                            print(notes)
+                            print(abs(self.space_rect.top - i.top))
                     pg.display.flip()
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:

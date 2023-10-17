@@ -14,7 +14,7 @@ from Settings import *
 from os import path
 from scipy.fftpack import dct
 from math import pi
-import sys, math, wave, numpy , random ,colorsys , librosa
+import sys, wave, numpy , random  , librosa
 note_list = []
 N = 7 # num of bars
 HEIGHT2 = 64 # height of a bar
@@ -27,8 +27,7 @@ combo = 0
 count = 0
 speed = 5
 #
-file_name = filedialog.askopenfilename(title="음악을 선택하세요", filetypes=(("wav 음악파일", "*.wav"), ("ogg 음악파일", "*.ogg")))
-#file_name = '캐논변주곡.wav'
+file_name = filedialog.askopenfilename(title="Choose music", filetypes=(("wav ", "*.wav"), ("ogg ", "*.ogg")))
 no_ext_filename,_ = os.path.splitext(file_name)
 print(no_ext_filename)
 fpsclock = pygame.time.Clock()
@@ -49,21 +48,21 @@ note_list = []
 z = 0
 isPause =0
 # librosa
-x , sr = librosa.load(file_name)
-onset_frames = librosa.onset.onset_detect(x, sr=sr, wait=1, pre_avg=1, post_avg=1, pre_max=1, post_max=1)
+x, sr = librosa.load(file_name)
+onset_frames = librosa.onset.onset_detect(y=x, sr=sr, wait=1, pre_avg=1, post_avg=1, pre_max=1, post_max=1)
 onset_times = librosa.frames_to_time(onset_frames)
 duration = librosa.get_duration(filename=file_name)
 if os.path.isfile(no_ext_filename+'.txt'):
-    print("onset파일이 있습니다 넘어갑니다")
+    print("onset file Check")
 else:
     with open(no_ext_filename + '.txt', 'wt') as f:
         f.write('\n'.join(['%.4f' % onset_time for onset_time in onset_times]))
         f.close()
-if os.path.isfile(no_ext_filename+'_노트.txt'):
-    print("노트 파일이 있습니다 넘어갑니다")
+if os.path.isfile(no_ext_filename+'_note.txt'):
+    print("note file check")
 else:
-    print("노트 파일 생성")
-    with open(no_ext_filename + '_노트.txt', 'wt') as f:
+    print("notfile_make")
+    with open(no_ext_filename + '_note.txt', 'wt') as f:
         f.write('\n'.join([str(64 * random.randrange(7)) for _ in range(len(onset_times))]))
         f.close()
 
@@ -72,32 +71,32 @@ class Game:
     def __init__(self):
         self.state = "intro"
         pg.init()
-        self.basic_font = pg.font.Font('AppleSDGothicNeoM.ttf', 15)  # 폰트 설정
-        self.title_font = pg.font.Font('AppleSDGothicNeoL.ttf', 15)  # 폰트 설정
-        self.combo_font = pg.font.Font('Game Of Squids.ttf', 30)  # 폰트 설정
+        self.basic_font = pg.font.Font('free_font.ttf', 15)  # font setting
+        self.title_font = pg.font.Font('free_font.ttf', 15)  # font setting
+        self.combo_font = pg.font.Font('free_font.ttf', 30)  # font setting
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         # self.aImage = pg.display.
         self.note_group = pg.sprite.Group
-        self.note = pg.image.load("note.png")
-        self.note1 = pg.image.load("note.png")
-        self.note2 = pg.image.load("note2.png")
-        self.note3 = pg.image.load("note3.png")
-        self.note4 = pg.image.load("note4.png")
-        self.perfect = pg.image.load("perfect.png")
-        self.grate = pg.image.load("great.png")
-        self.cool = pg.image.load("cool.png")
-        self.nope = pg.image.load("blank.png")
-        self.miss = pg.image.load("miss.png")
+        self.note = pg.image.load("images/note.png")
+        self.note1 = pg.image.load("images/note.png")
+        self.note2 = pg.image.load("images/note2.png")
+        self.note3 = pg.image.load("images/note3.png")
+        self.note4 = pg.image.load("images/note4.png")
+        self.perfect = pg.image.load("images/perfect.png")
+        self.grate = pg.image.load("images/great.png")
+        self.cool = pg.image.load("images/cool.png")
+        self.nope = pg.image.load("images/blank.png")
+        self.miss = pg.image.load("images/miss.png")
         self.circle = pygame.draw.rect(self.screen, self.rainbowColor(0),[0 , 0, 20, 20], 20, 20, 20, 20)
-        self.a = pg.image.load("A.png")
-        self.s = pg.image.load("S.png")
-        self.d = pg.image.load("D.png")
-        self.space = pg.image.load("Space.png")
-        self.j = pg.image.load("J.png")
-        self.k = pg.image.load("K.png")
-        self.l = pg.image.load("L.png")
-        self.bar = pg.image.load("bar.png")
-        self.bar2 = pg.image.load("bar2.png")
+        self.a = pg.image.load("images/A.png")
+        self.s = pg.image.load("images/S.png")
+        self.d = pg.image.load("images/D.png")
+        self.space = pg.image.load("images/Space.png")
+        self.j = pg.image.load("images/J.png")
+        self.k = pg.image.load("images/K.png")
+        self.l = pg.image.load("images/L.png")
+        self.bar = pg.image.load("images/bar.png")
+        self.bar2 = pg.image.load("images/bar2.png")
         self.value = False
         self.aNote = []
         self.sNote = []
@@ -191,7 +190,7 @@ class Game:
         global notes
         global combo
         if notes[0].top >= 618:
-                self.nope = pg.image.load("blank.png")
+                self.nope = pg.image.load("images/blank.png")
                 # 벽 넘어가면 Miss 뜨게 하였으나 버그가 많아 일시적으로 비활성...
                 if self.value == False:
                     self.nope = self.miss
@@ -220,7 +219,7 @@ class Game:
                 self.score =  self.combo_font.render(str(score), True, (0, 0, 0))
                 self.fullnote = self.title_font.render(str(count)+ "/"+str(self.num_notes), True, (0, 0, 0))
                 self.combo = self.combo_font.render("Combo : "+str(combo), True, (0, 0, 0))
-                self.speed = self.title_font.render("현재 속도 : " + str(speed), True, (0, 0, 0))
+                self.speed = self.title_font.render("Speed : " + str(speed), True, (0, 0, 0))
                 self.timebar = pygame.draw.rect(self.screen,self.rainbowColor(0),[0,0,448 *((self.get_current_time()/duration)),10])
                 fpsclock.tick(60)
                 self.vis()
@@ -239,7 +238,7 @@ class Game:
 
     def intro(self):
         # 화면 그리기
-        self.background = pg.image.load("main_menu.png")
+        self.background = pg.image.load("images/main_menu.png")
         self.screen.blit(self.background, (0, 0))
 
         self.events()
@@ -287,7 +286,7 @@ class Game:
        # self.beep = pygame.mixer.Sound("beep.wav")
         pygame.mixer.music.play()  # -1시 게임음악 반복재생
         pygame.mixer.music.set_endevent()
-        self.background = pg.image.load("main_ground.png")
+        self.background = pg.image.load("images/main_ground.png")
         self.screen.blit(self.background, (0, 0))
         self.load_music_data()
 
@@ -313,7 +312,7 @@ class Game:
         return onset_times
 
     def read_note_file(self):
-        with open(no_ext_filename + "_노트.txt", 'rt') as f:
+        with open(no_ext_filename + "_note.txt", 'rt') as f:
             text = f.read()
         onset_num = [int(string) for string in text.split('\n') if string != '']
 
